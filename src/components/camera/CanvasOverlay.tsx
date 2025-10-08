@@ -33,6 +33,8 @@ export default function CanvasOverlay({
   const fpsCounterRef = useRef<FPSCounter>(new FPSCounter());
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [modelError, setModelError] = useState<string | null>(null);
+  const frameSkipRef = useRef<number>(0);
+  const lastMaskRef = useRef<ImageData | null>(null);
 
   // 렌더링 루프
   const renderLoop = useCallback(async () => {
@@ -48,25 +50,40 @@ export default function CanvasOverlay({
         return;
       }
 
-      // 세그멘테이션 수행
-      const maskData = await segmentFrame(video);
+      // 프레임 스킵으로 성능 향상 (매 프레임마다 세그멘테이션하지 않음)
+      frameSkipRef.current++;
+      const shouldSegment = frameSkipRef.current % 2 === 0; // 2프레임마다 1번 세그멘테이션
 
-      if (maskData && canvasRef.current) {
-        // 필터 적용
+      if (shouldSegment) {
+        // 세그멘테이션 수행
+        const maskData = await segmentFrame(video);
+
+        if (maskData && canvasRef.current) {
+          // 마스크 저장
+          lastMaskRef.current = maskData;
+          
+          // 필터 적용
+          applySegmentationFilter(
+            canvasRef.current,
+            video,
+            maskData,
+            filterColor
+          );
+
+          // FPS 업데이트
+          const fps = fpsCounterRef.current.update();
+          if (onFPSUpdate && fps > 0) {
+            onFPSUpdate(fps);
+          }
+        }
+      } else if (lastMaskRef.current && canvasRef.current) {
+        // 이전 마스크로 필터 재적용 (부드러운 전환)
         applySegmentationFilter(
           canvasRef.current,
           video,
-          maskData,
+          lastMaskRef.current,
           filterColor
         );
-
-        // FPS 업데이트
-        const fps = fpsCounterRef.current.update();
-        if (onFPSUpdate && fps > 0) {
-          onFPSUpdate(fps);
-        }
-      } else {
-        console.warn('No mask data received from segmentation');
       }
     } catch (error) {
       console.error('Render loop error:', error);

@@ -40,8 +40,8 @@ export async function loadSegmentationModel(): Promise<bodyPix.BodyPix> {
     
     segmentationModel = await bodyPix.load({
       architecture: 'MobileNetV1',
-      outputStride: 8, // 16 → 8로 변경하여 정확도 2배 향상 (더 느리지만 정교함)
-      multiplier: isMobile ? 0.75 : 1.0, // 모바일에서도 높은 정확도
+      outputStride: 16, // 성능과 품질 균형 (8은 너무 느림)
+      multiplier: 0.75, // 적절한 품질 유지
       quantBytes: 2,
     });
     
@@ -67,14 +67,11 @@ export async function segmentFrame(
   }
 
   try {
-    // 모바일 디바이스 감지
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    
-    // 세그멘테이션 실행 (정확도 우선)
+    // 세그멘테이션 실행 (성능과 품질 균형)
     const segmentation = await segmentationModel.segmentPerson(video, {
       flipHorizontal: false,
-      internalResolution: isMobile ? 'medium' : 'high', // 정확도 향상
-      segmentationThreshold: 0.6, // 0.7 → 0.6으로 낮춰서 더 많은 영역 감지
+      internalResolution: 'medium', // 성능과 품질 균형
+      segmentationThreshold: 0.5, // 더 부드러운 감지
     });
 
     if (!segmentation) {
