@@ -2,7 +2,7 @@ import { CameraConfig, RecordingConfig } from '@/types';
 
 // 기본 카메라 설정
 export const DEFAULT_CAMERA_CONFIG: CameraConfig = {
-  facingMode: 'user', // 전면 카메라
+  facingMode: 'environment', // 후면 카메라
   width: 1280,
   height: 720,
   frameRate: 30,
@@ -10,7 +10,7 @@ export const DEFAULT_CAMERA_CONFIG: CameraConfig = {
 
 // 모바일 최적화 카메라 설정
 export const MOBILE_CAMERA_CONFIG: CameraConfig = {
-  facingMode: 'user',
+  facingMode: 'environment', // 후면 카메라
   width: 1280,
   height: 720,
   frameRate: 30,

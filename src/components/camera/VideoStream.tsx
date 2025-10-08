@@ -70,7 +70,7 @@ const VideoStream = forwardRef<HTMLVideoElement, VideoStreamProps>(
     return (
       <video
         ref={videoRef}
-        className={`transform scale-x-[-1] ${className}`}
+        className={className}
         playsInline
         muted
         autoPlay

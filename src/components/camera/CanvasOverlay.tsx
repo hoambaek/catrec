@@ -134,7 +134,7 @@ export default function CanvasOverlay({
     <div className={`relative ${className}`}>
       <canvas
         ref={canvasRef}
-        className="w-full h-full object-cover transform scale-x-[-1]"
+        className="w-full h-full object-cover"
         style={{
           display: isModelLoading || modelError ? 'none' : 'block',
         }}
