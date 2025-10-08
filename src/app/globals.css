@@ -33,6 +33,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* iOS Safari 비디오 최적화 */
+video {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+canvas {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
 /* 모바일 주소창 대응 */
 @supports (-webkit-touch-callout: none) {
   body {

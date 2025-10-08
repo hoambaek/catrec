@@ -23,10 +23,25 @@ const VideoStream = forwardRef<HTMLVideoElement, VideoStreamProps>(
       video.srcObject = stream;
 
       // 비디오 메타데이터 로드 시
-      const handleLoadedMetadata = () => {
-        video.play().catch((error) => {
-          console.error('비디오 재생 오류:', error);
-        });
+      const handleLoadedMetadata = async () => {
+        console.log('[VideoStream] Video metadata loaded');
+        
+        // iOS Safari를 위한 명시적 재생 시도
+        try {
+          await video.play();
+          console.log('[VideoStream] Video playing successfully');
+        } catch (error) {
+          console.error('[VideoStream] Video play error:', error);
+          // 재시도
+          setTimeout(async () => {
+            try {
+              await video.play();
+              console.log('[VideoStream] Video play retry successful');
+            } catch (retryError) {
+              console.error('[VideoStream] Video play retry failed:', retryError);
+            }
+          }, 100);
+        }
 
         if (onVideoReady) {
           onVideoReady(video);
@@ -59,6 +74,8 @@ const VideoStream = forwardRef<HTMLVideoElement, VideoStreamProps>(
         playsInline
         muted
         autoPlay
+        webkit-playsinline="true"
+        x-webkit-airplay="allow"
         style={{
           objectFit: 'cover',
         }}
