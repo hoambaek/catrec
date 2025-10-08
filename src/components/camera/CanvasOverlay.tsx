@@ -65,6 +65,8 @@ export default function CanvasOverlay({
         if (onFPSUpdate && fps > 0) {
           onFPSUpdate(fps);
         }
+      } else {
+        console.warn('No mask data received from segmentation');
       }
     } catch (error) {
       console.error('Render loop error:', error);
@@ -80,25 +82,30 @@ export default function CanvasOverlay({
 
     const initializeAndStart = async () => {
       try {
+        console.log('[CanvasOverlay] Starting initialization...');
         setIsModelLoading(true);
         setModelError(null);
 
         // 모델 로드
+        console.log('[CanvasOverlay] Loading segmentation model...');
         await loadSegmentationModel();
+        console.log('[CanvasOverlay] Model loaded successfully');
 
         if (isMounted) {
           setIsModelLoading(false);
           // Canvas가 준비되었음을 알림
           if (onCanvasReady && canvasRef.current) {
+            console.log('[CanvasOverlay] Canvas ready, notifying parent');
             onCanvasReady(canvasRef.current);
           }
           // 렌더링 루프 시작
+          console.log('[CanvasOverlay] Starting render loop');
           animationFrameRef.current = requestAnimationFrame(renderLoop);
         }
       } catch (error) {
-        console.error('Failed to initialize segmentation:', error);
+        console.error('[CanvasOverlay] Failed to initialize segmentation:', error);
         if (isMounted) {
-          setModelError('필터를 로드하는 중 오류가 발생했습니다.');
+          setModelError(`필터 로드 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
           setIsModelLoading(false);
         }
       }
